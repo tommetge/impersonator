@@ -1,0 +1,5 @@
+#!/usr/bin/env ruby
+
+require 'impersonator'
+
+db = ImpersonatorDB.new('bot.db')

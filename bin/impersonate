@@ -1,0 +1,35 @@
+#!/usr/bin/env ruby
+
+require 'impersonator'
+require 'yaml'
+
+config_file = File.expand_path('~/.impersonator.yml')
+if ARGV.length > 0
+  config_file = ARGV[0]
+end
+
+unless File.exists?(config_file)
+  puts "Invalid config file. Either create ~/.impersonator.yml or " <<
+       "tell us where to find it."
+  exit(1)
+end
+
+config = YAML::load_file(config_file)
+
+bot = Cinch::Bot.new do
+  configure do |c|
+    c.nick      = config['nick']     || 'impersonator'
+    c.server    = config['server']   || 'irc.freenode.org'
+    c.channels  = config['channels'] || '#cinch-bots'
+    c.port      = config['port']     || 6665
+    c.ssl.use   = config['ssl']      || false
+    c.password  = config['password']
+    c.keywords  = config['keywords'] || [config['nick']]
+    c.logs      = config['logs']
+    c.db        = ImpersonatorDB.new(config['database'] || 'bot.db')
+
+    c.plugins.plugins = [ImpersonatorBot]
+  end
+end
+
+bot.start
